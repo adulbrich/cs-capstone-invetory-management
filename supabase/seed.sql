@@ -4,6 +4,50 @@
 -- Clear existing data
 TRUNCATE items, transactions CASCADE;
 
+-- Create admin user
+-- Note: In Supabase, we need to use the auth schema for user creation
+-- The password is hashed using Supabase's crypt extension
+INSERT INTO auth.users (
+  instance_id,
+  id,
+  aud,
+  role,
+  email,
+  encrypted_password,
+  email_confirmed_at,
+  raw_app_meta_data,
+  raw_user_meta_data,
+  created_at,
+  updated_at,
+  confirmation_token,
+  email_change,
+  email_change_token_new,
+  recovery_token
+) VALUES (
+  '00000000-0000-0000-0000-000000000000',
+  '2944d9a8-ba10-4658-bdc6-4ea3175aadd3',
+  'authenticated',
+  'authenticated',
+  'alex@example.com',
+  crypt('alex1234', gen_salt('bf')), -- Password: alex1234
+  NOW(),
+  '{"provider":"email","providers":["email"]}',
+  '{"email_verified":true}',
+  NOW(),
+  NOW(),
+  '',
+  '',
+  '',
+  ''
+);
+
+-- Update the auto-created profile to admin role
+-- The trigger on_auth_user_created automatically creates a profile with 'student' role
+-- We update it to 'admin' and set the full name
+UPDATE profiles
+SET role = 'admin', full_name = 'Alex Admin'
+WHERE id = '2944d9a8-ba10-4658-bdc6-4ea3175aadd3';
+
 -- Insert sample items
 INSERT INTO items (title, description, tags, status, location, notes, image_url) VALUES
   ('Raspberry Pi 4 Model B (4GB)', 
